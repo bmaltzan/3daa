@@ -1,0 +1,102 @@
+<html><head><title>3D ray tracing animation applet: algirithm animation</title>
+
+</head>
+<!-- ====================================== -->
+
+<body text="#000000" background="../back.jpg" bgcolor="#ffffff" link="#0000ff" vlink="#5500aa" alink="#ff0000"> 
+
+<font size=5 face="Arial"><p>Algorithm Animation
+
+<font size=3 face="Arial"><p>
+In learning an algorithm, pseudocode is traditionally used. This allows abstraction
+of details specific to any language, and focusses attention on functionality. Flow charts,
+graphs, and object diagrams are a step up from pseudocode.  Another advance is the 
+animation of psuedocode, charts, graphs, and images.
+
+<p>The main goal of algorithm animation is an increase in the rate and depth of understanding
+of an algorithm. This is useful for education, research in design and analysis, and 
+debugging.
+
+<font size=5 face="Arial"><p>Algorithm Animation Techniques
+<font size=3 face="Arial"><p>
+An animation system generally consists of three parts: an algorithm, an animation,
+and a mapping between the two.  
+
+<p>In designing a system, several guidelines should be kept in mind:
+<ul>
+  <li>Animations are intended as a monitor of an algorithm's fundamental operation.
+  <li>Changes in the algorithm being simulated may cause a difference in execution 
+  between the simulated and stand-alone algorithms.
+  <li>The more overhead in animating an algorithm, the more chance of performance
+  affecting the algorithm's execution, especially for threading. Also, if the simulation is 
+  intended only for debugging, it should be kept small and simple.
+  <li>In complex algorithms, it may be more useful to allow the user to switch between
+  views of the animation. Multiple views of data allow several perspectives, and can limit
+  the amount of data presented at one time.
+  <li>If several similar purpose algorithms are selectable, concurrent animation may
+  allow the user a better understanding.
+  <li>The animation should be useful regardless of algorithm input.
+  <li>To be useful, an algorithm being simulated should run with sufficient speed
+  proportional to the speed of an algorithm in application.
+</ul>
+
+<font size=5 face="Arial"><p>A few simulations
+<font size=3 face="Arial"><p>
+<p><b>Boids</b>
+<br>Boids is a program released by Craig Reynolds in 1986. Many versions are now
+available on the web, such as the Java applet he has released. This version
+has a single window, showing the motion of birds (represented as triagles) as they display 'emergent'
+properties.  The goal of this is to produce lifelike flocking, herding, or schooling.
+This is a particle-like system, each animal moves according to three steering
+behaviors: avoid crowding, follow general flock direction, and move toward the center
+of nearby clusters.
+[<a href="project_references.html#Boids">Boids</a>]
+Code for a boids applet is available in Eckel's java book
+[<a href="project_references.html#Eckel">Eckel</a>]
+
+<p><b>Polka</b>
+<br>Polka is a general purpose algorithm animator based on XTango. It can animate
+both sequential and parallel algorithms.
+[<a href="project_references.html#Polka">Polka</a>]
+[<a href="project_references.html#XTango">XTango</a>]
+
+<p><b>Balsa</b>
+<br>Balsa was released by Marc Brown and Robert Sedgewick at Brown University in
+1984. It was designed as a general purpose algorithm animator, suitable for implementing
+first year Computer Science course algorithms, such as sorting and searching. A user can run 
+simulations and animations after an advanced user has entered the algorithm.  What
+the user sees, it typically limited to primitive graphics, and black and white, or few
+colors.  This is due to the limited power of available computers at the time.
+[<a href="project_references.html#balsa">Balsa</a>]
+
+<p><b>Provide</b>
+<br>Provide is an algorithm animator that focuses on debugging, which was designed near
+1985. To this 
+end, it's goals are to be flexible, and increase the rate at which algorithms can be 
+entered. It allows the user to control the level of abstraction, and to
+change data values.  Data can be changed through its deferred binding. Other features
+it implements are: code stepping, breakpoints, and data queries.
+[<a href="project_references.html#provide">Provide</a>]
+
+<p><b>3D graphics algorithm animation programming environment</b>
+This is a system designed to do a code walkthrough of 3D algorithms. This system
+executes an algorithm, while storing information. This data can later be used
+with 'event servers', to help the user to understand the way the algorithm works.  
+Currently the system simulates a raytracer.
+The user can step through raytracer code while an image is created, and a 3D wireframe
+(the Vector Guided View)
+helps to visually display the way vectors are used to determine a pixel's color.
+In the wireframe, a convenient viewpoint is chosen, so that the vector is clearly
+displayed.
+[<a href="project_references.html#goldman">Goldman</a>]
+
+<font size=5 face="Arial"><p>3D Algorithm Animation
+<font size=3 face="Arial"><p>
+<p>Adding 3D to an algorithm animator can serve two functions.  It can add more
+meaning to a 2D animation, or it can use 3D to animate 3D algorithms.
+
+<p>In using 3D, one of the more difficult challenges, is developing an understandable
+user interface, which allows the user control over a 3D world. In viewing a 3D scene, projected
+onto a 2D screen, a lot of information is lost or percieved incorrectly
+
+

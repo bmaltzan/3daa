@@ -1,0 +1,61 @@
+<html><head><title>3d ray tracing animation applet: ray tracing</title>
+
+</head>
+<!-- ====================================== -->
+
+<body text="#000000" background="../back.jpg" bgcolor="#ffffff" link="#0000ff" vlink="#5500aa" alink="#ff0000"> 
+
+<font size=5 face="Arial"><p>Ray Tracing
+<font size=3 face="Arial"><p>
+Raytracing is a technique used to produce high quality images. It is based on
+the physics of rays of light propagating through a scene and interacting with objects.
+
+<p>A raytracer algorithm has two main functions. An intersection routine determines
+if a ray cast from a point intersects any objects. A shading routine determines the color
+of a ray based on lighting, and object reflection properties.
+
+<p>Raytracing is a global illumination model. The pixel colors in an image are
+individually determined by tracing rays of light as they propagate through a scene.
+Rays are cast from a viewpoint, through each pixel on the screen, and tested for 
+intersection with objects. From the intersection point closest to the viewpoint, shadow
+feeler rays are sent to each light source. The Phong reflection model is applied to 
+determine the intensity and color of the light that comes to the observer from that 
+intersection point. 
+[<a href="project_references.html#Owen">Phong</a>]
+
+<p>The Phong model uses the sum of three types of light reflection at a point intersected:
+Ambient, Diffuse, and Specular Reflection. It also takes into account light reflected
+from other surfaces, and transmitted through the object.
+
+<p>Red, blue, and green Ambiant reflection coefficients model background light, or light 
+reflecting from nearby matte surfaces. 
+
+<p>Diffuse reflection models light shining on a dull surface, where reflected light
+is distributes in many directions. This light is independant of the position
+of the observer. Instead, the amount of light reflected depends on the orientation of 
+the surface, relative to the light source. Diffuse light models the intrinsic color
+of an object. 
+
+<p>Specular reflection models shiny, mirror-like surfaces. The intensity of light seen 
+by the observer depends on the viewing position relative to the surface. 
+A specular highight is produced. In addition to red, green, and blue specular
+reflection coefficients, a specular exponent determines the 'shinyness' of the surface,
+and the resulting size of the specular highlight.
+
+<p>The raytracing algorithm implemented in 3DAA provides for multiple reflections 
+and transparency. It does so recursively, where at each intersection point, the 
+intersected object has some specular reflection, a 'reflection ray' is cast in
+the direction of the most specular reflection. If the object intersected has some
+transparency, a 'transparency ray' is cast into the scene. Both rays use the point
+of intersection with the object, as the source of the 'eye ray' for the next
+level of recursion. The color returned by recursive calls is incorporated
+into the color computed by the Phong model at the original surface's intersection point
+with the eye ray.
+
+<p>Here is an excellent illustration of raytracing: 
+<br><a href="http://www.cs.helsinki.fi/group/goa/render/rt/rtrace1.html">
+www.cs.helsinki.fi/group/goa/render/rt/rtrace1.html</a>. 
+[<a href="project_references.html#Owen">Owen</a>]
+
+</font></body></html>
+

@@ -1,0 +1,225 @@
+<html><head><title>3d ray tracing animation applet: algorithms</title>
+
+</head>
+<!-- ====================================== -->
+
+<body text="#000000" background="../back.jpg" bgcolor="#ffffff" link="#0000ff" vlink="#5500aa" alink="#ff0000"> 
+
+<font size=5 face="Arial"><p>Raytracing and Other Algorithms
+<font size=3 face="Arial"><p><img src="cd3.gif" align=left border=1><br clear=all>
+                         
+<p>The Sim class stores pointers to all the 'Main Classes', or
+components that need to be attached to the applet. 
+The actual call to 
+create these components, is made in the SimState class. For each component,
+Sim calls a method of SimState that creates and returns a pointer of that type.
+For an algorithm to be implemented, it must extend SimState, and override
+the methods that return components that it needs to change.
+For instance, simulating the raytracer,
+the Raytracer class extends the Algorithm class. The execute() method
+is called when the user presses the render button in the ButtonPanel.
+RaytracerState extends SimState, and overrides the call to create
+and Algorithm class. Instead, a Raytracer class is created and returned.
+
+<p>The AlgPanel class has a choice box, allowing the user to select an 
+algorithm to simulate.  When an algorithm is selected, the simulator removes
+all components from the pref, setup, sim, and help panels. It then loads the class
+extending SimState. It then calls each of the methods that return the 
+algorithm's components, and positions those components inside the 3dAA applet.
+
+<!-- ====================================== -->
+<font size=5 face="Arial"><p>Adding the Raytracer Algorithm to the Simulator
+<font size=3 face="Arial"><p>
+To implement the raytracer algorithm, a choice is added to the AlgPanel
+Choice box. When selected it will create a RaytracerState object. It
+has several overridden methods, to create classes with added functionality,
+and to provide the text of the help and about boxes.
+
+<p>The Raytracer class extends the Algorithm class. It implements the execute
+method, which renders a scene. It also implements the record method, creating
+a recording of an execution of the algorithm. 
+The Raytracer class also adds
+some additional public methods: two default scenes can be created, and scene data
+can be sent between the setup panel and the raytracer.
+
+<p>The RaytracerSource class has the text of the Raytracer source code.
+
+<p>The RaytracerDisplayCanvas1 class tracks any point clicked on this canvas.
+The rendered image will be displayed here. If the user wishes to see how a pixel's
+color was determined, the user can click on that pixel, and then record.
+
+<p>The DisplayCanvasWireFrame class adds the ability to display 3D images. This is 
+used to show the interaction between rays, and objects and lights in the scene.
+3D is implemented using a simple four paramerter viewing system. The user specifies
+a view point, a view plane distance, and a viewing direction. A view-up vector is
+constant at (0,1,0). a right-handed cartesian coordinate system is used, with x 
+toward the right, y up, and z toward the viewer. The camera is oriented toward the
+origin as default, but another point can be specified. This direction is the view-plane
+normal.
+
+
+<p>The RaytracerButtonPanel class changes one of the button labels from 
+'execute' to 'render'.
+
+<p>The RaytracerSetupButtons class controls the creation of scene elements
+in the raytracer, and stores them locally. The raytracer's default scene's
+can be loaded, or the user can start with an empty scene. The user can
+add or remove triangles, spheres, boxes, and lights. The user can also modify
+the viewpoint. A scene can be saved, and the user can render, and record from
+the sim panel. 
+
+<!-- ====================================== -->
+<font size=5 face="Arial"><p>Simulating Multiple Algorithms
+<font size=3 face="Arial"><p>
+3dAA can allow the user to select among several algorithms to simulate.
+Attaching another algorithm involves modifying a choice box, and extending
+a few classes.
+
+<p><b>Just getting something working</b>
+<p>First, the AlgPanel class must be modified.
+<p><code><pre><font face="Courier">
+public class AlgPanel extends Panel{
+   private String[] alg={
+      "Raytracer",
+      <font color="#880000">"algorithm2 name"</font>
+   };
+   public AlgPanel(){
+      add(new Label("algorithm:"));
+      for(int i=0; i&lt;alg.length; i++){ c.addItem(alg[i]); }
+      c.select(0);
+      add(c);
+      c.addItemListener(
+         new ItemListener(){
+            public void itemStateChanged(ItemEvent e){
+               SimState tmp_state;
+               sim.draw_text(sim.get_state().get_msg_alg_selected());
+               switch(c.getSelectedIndex()){
+                  default:
+                  case 0: tmp_state= new RaytracerState(sim); break;
+                  <font color="#880000">case 1: tmp_state= new Algorithm2State(sim); break;</font>
+               }
+               sim.select_algorithm(tmp_state);
+      }  }  );
+}  }
+</code></pre></font>
+
+<p>To get the Simulator working, two classes must be created. They must extend
+SimState, and Algorithm.
+Extending SimState, Algorithm2State should be created first. 
+To avoid namespace clashes, the classname of additional classes should begin with
+the name of the algorithm. 'Algorithm2' should be replaced with the name of the algorithm. 
+SimState has one abstract methods, get_algorithm().
+It returns an abstract classes. Abstract classes and classes with abstract
+methods can not be instanciated. This is used to guarantee these classes and methods
+are implemented before the system can run.
+
+<p><code><pre><font color="#880000"><font face="Courier">
+public class Algorithm2State extends SimState{
+   public Algorithm2State(Sim s){ super(s); }
+   public Algorithm get_algorithm(){ return new Algorithm2(sim); }
+}
+</code></pre></font></font>
+
+<p>SimState.get_algorithm() returns an Algorithm.
+An Algorithm2 class that extends Algorithm and implements the execute() method, 
+should be created. Execute is the only abstract method, so the only 
+method that needs to be overridden, to start. The execute() method is called when
+the user presses the execute button in the ButtonPanel. The algorithm can use
+the display canvases in the sim panel, and the text box in the control panel at 
+the top of the applet.
+
+<p><code><pre><font color="#880000"><font face="Courier">
+public class Algorithm2 extends Algorithm{
+   public Algorithm2(Sim s){ super(s); }
+   public void execute(){
+      DisplayCanvas dc= sim.get_display1_canvas(); <font color="#008800">//get the left canvas </font>
+      Graphics g= dc.get_graphics(); <font color="#008800">//get the canvas image buffer </font>
+      ... 
+      algorithm code here 
+      ...
+      g.drawShape(); <font color="#008800">//draw on canvas buffer </font>
+      g.drawText();
+      dc.repaint(); <font color="#008800">//copy canvas buffer to screen </font>
+      ...
+      g.setColor(Color.black); <font color="#008800">//erase canvas buffer </font>
+      g.fillRect(0,0, buffer_d.width,buffer_d.height);
+      ...
+      sim.draw_text("message"); <font color="#008800">//display a message in the Control Panel text box </font>
+   }
+}
+</code></pre></font></font>
+
+<p>At this point the applet will be runnable, and should display
+some output, indicating the results of it's execution. Compiling the Simulator
+requires one command, "javac Sim.java" all other classes are dependent on this one,
+so will be included.
+
+<p>The next feature to implement could be a code walkthrough. Two classes need to
+be extended here. First Algorithm2Source should extend AlgSource. The algorithm sourcecode 
+should be divided into two sets of methods at this point: code that sets up data for
+input to the algorithm, and the algorithm code. Code that creates data for input
+to the algorithm should be placed at the end of the sourcecode text, or not included.
+This will allow the code to be easily modified from the setup panel later.
+
+<p><code><pre><font color="#880000"><font face="Courier">
+public class Algorithm2Source extends AlgSource{
+   public Algorithm2Source(){
+      i=0;code[i]="line1";
+      i=0;code[i]="line2";
+      i=0;code[i]="....";
+      static_i=i; <font color="#008800">//last line of code not related to input to algorithm </font>
+   }//end of constructor
+</code></pre></font></font>
+
+<p>There is one more class to modify. Algorithm2.record() must be implemented. Essentially,
+the code from execute is repeated, with emmbedded recording calls. AlgTape maitains the sequence
+of AlgFrame objects passed to it. An AlgFrame consists of four values: the line of code
+simulated as executing, a String to be displayed in the Control Bar text box, and two lists
+of objects that know how to draw themselves, given a Graphics object. 
+The objects are drawn in the right and left display canvases in the sim panel. 
+
+
+<p><code><pre><font face="Courier">
+public class Algorithm2 extends Algorithm{
+   public Algorithm2(Sim s){ super(s); }
+   public void execute(){
+      ...
+      algorithm code and calls to other methods
+      ...
+      <font color="#880000">method_call();</font>
+   }   
+   <font color="#880000">private void method_call(){
+      x= method2();
+      ...
+   }
+   private int method2(){
+      ...
+   }
+   // --------- methods for recording ----------
+   private AlgTape recording;
+   public AlgTape record(){
+      recording= new AlgTape();
+      ...
+      algorithm code and calls to other methods
+      recording.append(new AlgFrame(8, "text message", null, null));
+      ...
+      rec_method_call();
+      recording.append(new AlgFrame(10, "text message", null, null));
+   }
+   private rec_method_call(){
+      x= method2(); <font color="#008800">//rec_method2() not called here, so that method isn't recorded. </font>
+      recording.append(new AlgFrame(15, "x="+x, null, null));
+   }</font>
+}
+</code></pre></font>
+
+<p>Algorithm2State must override methods that return any extended classes, in this case AlgSource.
+<p><code><pre><font face="Courier">
+public class Algorithm2State extends SimState{
+   public Algorithm2State(Sim s){ super(s); }
+   public Algorithm get_algorithm(){ return new Algorithm2(sim); }
+   <font color="#880000">public AlgSource get_alg_source(){ return new Algorithm2Source(); }</font>
+}
+</code></pre></font>
+
+</font></body></html>

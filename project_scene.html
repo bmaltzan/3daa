@@ -1,0 +1,38 @@
+<html><head><title>3d ray tracing animation applet: algorithms</title>
+
+</head>
+<!-- ====================================== -->
+
+<body text="#000000" background="../back.jpg" bgcolor="#ffffff" link="#0000ff" vlink="#5500aa" alink="#ff0000"> 
+ 
+<font size=5 face="Arial"><p>Building a Scene to be Raytraced
+<font size=3 face="Arial"><p>
+<p>The setup panel consists of three panels. 
+A DisplayCanvasWireFrame is used to visually show how the scene will appear.
+A RaytracerSetupButtons class controls most of the setup. It allows the
+user to create or modify a scene, and updates the wireframe after each
+modification. The last panel holds other panels that allow the user
+to adjust an object's properties. The user can use scrollbars to modify
+values, which will be displayed in the same panel.
+
+<p><img src="cd6.gif" align=left border=1><br clear=all>
+<p>The user can change the point the scene is viewed from. When the user presses
+the viewing button, a SetupViewPanel class is created, and passed a pointer
+to objects that store the viewing information. The viewing panel that is created
+has scrollbars that allow the user to adjust the viewing information. The value
+is displayed in text in the view panel and the wireframe image of the 
+scene is updated to reflect the new viewpoint.
+
+<p><img src="cd7.gif" align=left border=1>
+<p> The user can edit or create a light source. The 
+user can set the position of the center of a point light source, and it's brightness.
+<br clear=all>
+
+<p><img src="cd8.gif" align=left border=1><br clear=all>
+<p>When the user creates an object, two panels are created. One is to set the
+color properties of the object. These include ambient, diffuse, and specular 
+color, and the specular coefficient, reflectivity, and transparency.
+The other panel is to set the object's geometry.
+
+</font></body></html>
+

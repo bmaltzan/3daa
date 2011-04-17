@@ -1,0 +1,520 @@
+import java.awt.*;
+
+/**
+ *  Raytracer.java
+ *
+ *  an implementation of a raytracer
+ *  ported from C, by Roman Kuchkuda
+ *
+ *  @author  Brian Maltzan
+ *  @version 99.3.1
+ *  @since   JDK1.1.7A
+ */
+
+public class Raytracer{
+
+   //-------------------------------  o b j e c t s ----------
+   abstract class TObject{
+      TColor ambiant= new TColor();
+      TColor diffuse= new TColor();
+      TColor specular= new TColor();
+      double coef; //specular coef
+      double refl; //reflection 0-1
+      double tran; //transparency 0-1
+
+      public void set_colors(double ar,double ag,double ab, 
+                     double dr,double dg,double db, 
+                     double sr,double sg,double sb,
+                     double c, double r, double t){
+         ambiant.r=ar; ambiant.g=ag; ambiant.b=ab;
+         diffuse.r=dr; diffuse.g=dg; diffuse.b=db;
+         specular.r=sr; specular.g=sg; specular.b=sb;
+         coef=c; refl=r; tran=t;
+      }
+      public abstract double objint(T3d a,T3d b);
+      public abstract void objnrm(T3d a,T3d b);
+   }
+   final class OSphere extends TObject{
+      double r, x,y,z;
+
+      public OSphere(double r1, double x1,double y1,double z1){
+         r=r1; x=x1; y=y1; z=z1;
+      }
+      public double objint(T3d pos, T3d ray){
+         double b,t,s=0, xadj,yadj,zadj;
+
+         xadj= pos.x-x; //translate ray origin to object's space
+         yadj= pos.y-y;
+         zadj= pos.z-z;
+
+         b= xadj*ray.x + yadj*ray.y + zadj*ray.z; //solve quadratic
+         if(b< -1e50) b= -1e50;
+         t= b*b - xadj*xadj - yadj*yadj - zadj*zadj + r*r;
+         if(t<0) return 0;
+
+         s= -b - Math.sqrt(t); //try smaller solution
+         if(s>0) return s;
+         s= -b + Math.sqrt(t); //try larger solution
+         if(s>0) return s;
+         return 0;          //both solutions <= 0
+      }
+      public void objnrm(T3d pos,T3d nrm){
+         nrm.x= (pos.x-x)/r;
+         nrm.y= (pos.y-y)/r;
+         nrm.z= (pos.z-z)/r;
+      }
+   }
+   final class OBox extends TObject{
+      int sidehit;
+      double x,y,z;     //center
+      double xs,ys,zs;  //size of sides
+      final double FAR_AWAY= 99.99E+20;
+
+      public OBox(double x1,double y1,double z1,
+                  double xs1,double ys1,double zs1){
+         x=x1; y=y1; z=z1; xs=xs1; ys=ys1; zs=zs1;
+      }
+      public double objint(T3d pos, T3d ray){
+         double s,ss, xhit,yhit,zhit;
+         double xadj,yadj,zadj;
+
+         ss= FAR_AWAY;
+         xadj= pos.x-x; //translate ray origin to objects space
+         yadj= pos.y-y;
+         zadj= pos.z-z;
+
+         if(ray.x!=0){      //check x faces
+            s= (xs-xadj)/ray.x;
+            if((s>0)&&(s<ss)){
+               yhit = Math.abs(yadj + s*ray.y);
+               zhit = Math.abs(zadj + s*ray.z);
+               if((yhit<ys)&&(zhit<zs)){
+                  sidehit= 0;
+                  ss= s;
+            }  }
+            s= (-xs-xadj)/ray.x;
+            if((s>0)&&(s<ss)){
+               yhit= Math.abs(yadj + s*ray.y);
+               zhit= Math.abs(zadj + s*ray.z);
+               if ((yhit<ys)&&(zhit<zs)){
+                  sidehit = 1;
+                  ss = s;
+         }  }  }
+         if(ray.y!=0){      //check y faces
+            s= (ys-yadj)/ray.y;
+            if((s>0)&&(s<ss)){
+               xhit = Math.abs(xadj + s*ray.x);
+               zhit = Math.abs(zadj + s*ray.z);
+               if((xhit<xs)&&(zhit<zs)){
+                  sidehit= 2;
+                  ss= s;
+            }  }
+            s= (-ys-yadj)/ray.y;
+            if((s>0)&&(s<ss)){
+               xhit= Math.abs(xadj + s*ray.x);
+               zhit= Math.abs(zadj + s*ray.z);
+               if ((xhit<xs)&&(zhit<zs)){
+                  sidehit = 3;
+                  ss = s;
+         }  }  }
+         if(ray.z!=0){      //check z faces
+            s= (zs-zadj)/ray.z;
+            if((s>0)&&(s<ss)){
+               xhit = Math.abs(xadj + s*ray.x);
+               yhit = Math.abs(yadj + s*ray.y);
+               if((xhit<xs)&&(yhit<ys)){
+                  sidehit= 4;
+                  ss= s;
+            }  }
+            s= (-zs-zadj)/ray.z;
+            if((s>0)&&(s<ss)){
+               xhit= Math.abs(xadj + s*ray.x);
+               yhit= Math.abs(yadj + s*ray.y);
+               if ((xhit<xs)&&(yhit<ys)){
+                  sidehit = 5;
+                  ss = s;
+         }  }  }
+         if (ss==FAR_AWAY) return 0;
+         return ss;
+      }
+      public void objnrm(T3d pos,T3d nrm){
+         nrm.x = 0; nrm.y = 0; nrm.z = 0;
+         switch (sidehit){
+            case(0): nrm.x=  1; break;
+            case(1): nrm.x= -1; break;
+            case(2): nrm.y=  1; break;
+            case(3): nrm.y= -1; break;
+            case(4): nrm.z=  1; break;
+            case(5): nrm.z= -1; break;
+      }  }  
+   }
+   final class OTriangle extends TObject{
+      T3d nrm= new T3d();    
+      double d;        //plane constant
+      double d1,d2,d3; //plane constants
+      T3d e1=new T3d(),e2=new T3d(),e3=new T3d(); //edge vector
+      T3d pt1,pt2,pt3;
+
+      public OTriangle(T3d p1, T3d p2, T3d p3){
+         pt1=(T3d) p1.clone(); pt2=(T3d) p2.clone(); pt3=(T3d) p3.clone();
+         T3d vc1=new T3d(p2.x-p1.x, p2.y-p1.y, p2.z-p1.z),
+             vc2=new T3d(p3.x-p2.x, p3.y-p2.y, p3.z-p2.z),
+             vc3=new T3d(p1.x-p3.x, p1.y-p3.y, p1.z-p3.z); 
+
+         crossp(nrm,vc1,vc2); //triangle plane
+         d= dotp(nrm,p1);
+         crossp(e1,nrm,vc1); //edge planes
+         d1= dotp(e1,p1);
+         crossp(e2,nrm,vc2);
+         d2= dotp(e2,p2);
+         crossp(e3,nrm,vc3);
+         d3= dotp(e3,p3);
+      }
+      public double objint(T3d pos,T3d ray){
+         double s,k;
+         T3d point= new T3d();
+
+         k= dotp(nrm,ray); //plane intersection
+         if(k==0) return 0;
+         s= (d-dotp(nrm,pos))/ k;
+         if(s<=0) return 0;
+
+         point.x= pos.x + ray.x*s;
+         point.y= pos.y + ray.y*s;
+         point.z= pos.z + ray.z*s;
+
+         k= dotp(e1,point) - d1; //edge checks
+         if(k<0) return 0;
+         k= dotp(e2,point) - d2;
+         if(k<0) return 0;
+         k= dotp(e3,point) - d3;
+         if(k<0) return 0; 
+         return s;      
+      }
+      public void objnrm(T3d pos,T3d normal){
+         normal.x= nrm.x;
+         normal.y= nrm.y;
+         normal.z= nrm.z;
+      }
+   }
+
+   //------------------------------  c l a s s    v a r s  -------
+   private final int LIGHTS= 8;
+   private final int OBJECTS= 20;
+   private final int SCREENWIDTH= 250;
+   private final int SCREENHEIGHT= 250;
+   private final double ASPECTRATIO= 1.0;
+   private final double DEGREETORADIAN= (Math.PI/180); 
+   private final double FAR_AWAY= 99.99E+20;
+
+   private double GAMMA= 1.4;
+   private Color RAY_MISSED=    Color.pink;
+   private Color RAY_HIT=       Color.red;
+   private Color RAY_NO_SHADOW= Color.yellow;
+   private Color RAY_SHADOW=    Color.yellow;
+   private Color RAY_IMAGE=     Color.blue;
+   private Color LIGHT_COLOR=   Color.yellow;
+
+   private int nobject;
+   private TObject[] object= new TObject[OBJECTS];
+
+   private int nlight;
+   private TLight[] light= new TLight[LIGHTS];
+
+   private int sizex, sizey;       //image sizes
+   private T3d eyep, lookp, up;    //viewing
+   private double hfov,vfov;       //angular fields of view
+   private int level=1,maxlevel=5; //reflection levels
+   private TColor background;  
+
+   private int line_y,pixel_x, ri,gi,bi;
+   private T3d scrnx=new T3d(),scrny=new T3d(),
+               firstray=new T3d(),ray=new T3d();
+   private TColor color= new TColor();
+   private double dis;
+
+   private double s_litdis;
+
+   //--------------  r a y - t r a c e    c o n s t r u c t o r  -------
+   public Raytracer(){
+      scene1();
+      viewing(scrnx,scrny,firstray);
+   }
+
+   //---------------------------  r a y - t r a c e    s c e n e  --------
+   public void execute(Graphics g){  // main()
+      for(line_y=0;line_y<sizey;line_y++){
+         for(pixel_x=0;pixel_x<sizex;pixel_x++){
+            if( ((tf_counter--)%500)==1) sim.draw_text(tf_counter+"");
+            ray.x= firstray.x + (pixel_x * scrnx.x) - (line_y * scrny.x);
+            ray.y= firstray.y + (pixel_x * scrnx.y) - (line_y * scrny.y);
+            ray.z= firstray.z + (pixel_x * scrnx.z) - (line_y * scrny.z);
+            normalize(ray);
+            dis= intersect(-1, eyep, ray, color);
+            if(dis>0){
+               ri=gammacorrect(color.r);
+               gi=gammacorrect(color.g);
+               bi=gammacorrect(color.b);
+               g.setColor(new Color(ri,gi,bi));
+               g.drawLine(pixel_x,line_y, pixel_x,line_y);
+            }else{
+               g.setColor(new Color((int)background.r,(int)background.g,(int)background.b));
+               g.drawLine(pixel_x,line_y, pixel_x,line_y);
+   }  }  }  }
+
+   //----------------------------------------  v i e w i n g  --------
+   private void viewing(T3d scrnx, T3d scrny, T3d firstray){
+      T3d gaze= new T3d();
+      double dist, magnitude;
+
+      gaze.x= lookp.x-eyep.x;
+      gaze.y= lookp.y-eyep.y;
+      gaze.z= lookp.z-eyep.z;
+      dist= normalize(gaze);
+      crossp(scrnx,gaze,up);
+      crossp(scrny,scrnx,gaze);
+
+      dist *=2.0;
+      magnitude = dist*Math.tan(hfov*DEGREETORADIAN)/sizex;
+      scrnx.x *= magnitude;
+      scrnx.y *= magnitude;
+      scrnx.z *= magnitude;
+      magnitude = dist*Math.tan(vfov*DEGREETORADIAN)/sizey;
+      scrny.x *= magnitude;
+      scrny.y *= magnitude;
+      scrny.z *= magnitude;
+
+      firstray.x = lookp.x - eyep.x;
+      firstray.y = lookp.y - eyep.y;
+      firstray.z = lookp.z - eyep.z;
+
+      firstray.x += sizey/2*scrny.x - sizex/2*scrnx.x;
+      firstray.y += sizey/2*scrny.y - sizex/2*scrnx.y;
+      firstray.z += sizey/2*scrny.z - sizex/2*scrnx.z;
+   }
+
+   //--------------------------------------  i n t e r s e c t  --------
+   private double intersect(int source, T3d pos, T3d ray, TColor color){
+      int objhit,objtry;
+      double s,ss;
+      T3d hit=new T3d(),normal=new T3d();
+
+      objhit=-1;
+      ss=FAR_AWAY;
+      for(objtry=0; objtry<nobject; objtry++){
+         if(objtry!=source){
+            s= object[objtry].objint(pos,ray);
+            if((s>0.0)&&(s<=ss)){
+               objhit=objtry;
+               ss=s;
+      }  }  }
+      if(objhit<0){ return 0; }
+
+      hit.x= pos.x + ss*ray.x;
+      hit.y= pos.y + ss*ray.y;
+      hit.z= pos.z + ss*ray.z;
+      object[objhit].objnrm(hit,normal);
+      shade(hit,ray,normal,objhit,color);
+      return ss;
+   }
+
+   //----------------------------------------  s h a d e  --------
+   private void shade(T3d pos,T3d ray,T3d nrm,int obj,TColor color){
+      int lnum;
+      double k,dis,bright,spec,diffuse;
+      T3d refl=new T3d(),ltray=new T3d();
+      TColor newcol=new TColor();
+
+      k= -2.0*dotp(ray,nrm); //calculate reflected ray
+      refl.x= k*nrm.x + ray.x;
+      refl.y= k*nrm.y + ray.y;
+      refl.z= k*nrm.z + ray.z;
+
+      color.r= object[obj].ambiant.r; //ambient light contribution
+      color.g= object[obj].ambiant.g;
+      color.b= object[obj].ambiant.b;
+
+      for (lnum=0; lnum<nlight; lnum++){ //get ray to light
+         lightray(lnum,pos,ltray);
+         diffuse= dotp(nrm,ltray);
+         if(diffuse>0){ //object faces light, add diffuse
+            bright= brightness(obj,lnum,pos,ltray);
+            diffuse*= bright;
+            color.r+= object[obj].diffuse.r * diffuse;
+            color.g+= object[obj].diffuse.g * diffuse;
+            color.b+= object[obj].diffuse.b * diffuse;
+
+            spec= dotp(refl,ltray);
+            if(spec>0){ //highlight is here, add specular
+               spec = bright * Math.pow(spec,object[obj].coef);
+               color.r+= object[obj].specular.r * spec;
+               color.g+= object[obj].specular.g * spec;
+               color.b+= object[obj].specular.b * spec;
+      }  }  }
+      k= object[obj].refl; //reflection
+      if((k>0)&&(level<maxlevel)){
+         level++;
+         dis= intersect(obj,pos,refl,newcol);
+         if (dis>0){
+            color.r+= newcol.r*k;
+            color.g+= newcol.g*k;
+            color.b+= newcol.b*k;
+         }else{
+            color.r+= background.r*k;
+            color.g+= background.g*k;
+            color.b+= background.b*k;
+         }
+         level--;
+      }
+      k= object[obj].tran; //transparency
+      if(k>0){
+         color.r*= (1-k);
+         color.g*= (1-k);
+         color.b*= (1-k);
+         dis = intersect(obj,pos,ray,newcol);
+         if (dis > 0){
+            color.r+= newcol.r*k;
+            color.g+= newcol.g*k;
+            color.b+= newcol.b*k;
+         }else{
+            color.r+= background.r*k;
+            color.g+= background.g*k;
+            color.b+= background.b*k;
+   }  }  }
+
+   //---------------------------------------  l i g h t i n g  --------
+   private void lightray(int lnum,T3d pos,T3d lray){
+      lray.x= light[lnum].x-pos.x;
+      lray.y= light[lnum].y-pos.y;
+      lray.z= light[lnum].z-pos.z;
+      s_litdis= normalize(lray);
+   }
+   private double brightness(int source,int lnum,T3d pos,T3d ray){
+      int objtry;
+      double s;
+
+      for(objtry=0; objtry<nobject; objtry++){
+         if(objtry!=source){ //don't try source
+            s= object[objtry].objint(pos,ray);
+            if((s>0.0)&&(s<=s_litdis)){
+               return(0); //object in shadow
+      }  }  }
+      return(light[lnum].bright); //object not in shadow
+   }
+   private int gammacorrect(double intensity){ 
+      int ival;
+      double dval;
+
+      dval= intensity/255.0;
+      if(dval>1.0) dval=1.0;
+      if(dval<0.0) dval=0.0;
+
+      dval= Math.exp(Math.log(dval)/GAMMA);
+      dval*=255.0;
+      ival=(int)(dval+0.5);
+      return ival;
+   }
+
+   //--------------------------------------  m a t h  --------
+   private final double normalize(T3d t){
+      double d= Math.sqrt(t.x*t.x + t.y*t.y + t.z*t.z);
+      t.x/=d; t.y/=d; t.z/=d;
+      return d;
+   }
+   private final double dotp(T3d a,T3d b){
+      return ((a.x*b.x) + (a.y*b.y) + (a.z*b.z));
+   }
+   private final void crossp(T3d o,T3d a,T3d b){
+      double d;
+      o.x= a.y*b.z - a.z*b.y;
+      o.y= a.z*b.x - a.x*b.z;
+      o.z= a.x*b.y - a.y*b.x;
+      d= Math.sqrt(o.x*o.x + o.y*o.y + o.z*o.z);
+      o.x/= d;
+      o.y/= d;
+      o.z/= d;
+   }
+
+   //-------------------  c r e a t e    s c e n e  -----
+   public void scene1(){
+      eyep=new T3d(480,85,70); lookp=new T3d(0,0,0);
+      up=new T3d(0,1,0);
+      hfov=10; vfov=10;
+      maxlevel=5;
+      GAMMA= 1.4;
+      sizex=250; sizey=250;
+      viewing(scrnx,scrny,firstray);
+      
+      int i;
+      T3d p1=new T3d(),p2=new T3d(),p3=new T3d();
+
+      background= new TColor(0,0,0);  
+      nlight=0; nobject=0;
+
+      light[nlight]= new TLight(100,400,-100, 1);
+      nlight++;
+      light[nlight]= new TLight(300,20,1, 0.6);
+      nlight++;
+      light[nlight]= new TLight(-100,20,-100, 1);
+      nlight++;
+      light[nlight]= new TLight(300,-20,10, 0.6);
+      nlight++;
+
+      for(i=nlight; i<LIGHTS; i++){ light[i]=null; }
+
+      object[nobject]= new OBox(170,10,0, 7,10,7);
+      object[nobject].set_colors
+         (0,50,0, 0,100,0, 30,60,0, 6,0,0.2); //green
+      nobject++;
+
+      p1.x=  220; p1.y= 0; p1.z= 0; //top yellow
+      p2.x= -130; p2.y= 0; p2.z= -200;
+      p3.x= -130; p3.y= 0; p3.z= 200;
+      object[nobject]= new OTriangle(p1,p2,p3);
+      object[nobject].set_colors
+         (80,80,0, 150,120,0, 90,80,20, 2,0.0,0.0); 
+      nobject++;
+
+      p1.x=  220; p1.y= 0;    p1.z= 0; // left bottom yellow
+      p2.x= -130; p2.y= 0;    p2.z= -200;
+      p3.x= -130; p3.y= -200; p3.z= -50;
+      object[nobject]= new OTriangle(p1,p2,p3);
+      object[nobject].set_colors
+         (80,80,0, 150,120,0, 90,80,20, 2,0,0); 
+      nobject++;
+
+      p1.x= -130; p1.y= 120; p1.z= 0; // back mirror
+      p2.x= -130; p2.y= 0;   p2.z= -200;
+      p3.x= -130; p3.y= 0;   p3.z= 200;
+      object[nobject]= new OTriangle(p1,p3,p2);
+      object[nobject].set_colors
+         (8,38,88, 8,38,88, 8,38,88, 2,0.8,0);
+      nobject++;
+
+      p1.x= 220;  p1.y= 0;    p1.z= 0; // right bottom yellow
+      p2.x= -130; p2.y= 0;    p2.z= 200;
+      p3.x= -130; p3.y= -200; p3.z= -50;
+      object[nobject]= new OTriangle(p1,p2,p3);
+      object[nobject].set_colors
+         (80,80,0, 150,120,0, 90,80,20, 2,0,0); 
+      nobject++;
+
+      object[nobject]= new OSphere(15, -22,25,60);
+      object[nobject].set_colors
+         (255,0,0, 0,255,0, 0,0,255, 15,0.8,0); //transparent
+         //(90,90,90, 230,230,230, 110,110,110, 15,0.8,0); //transparent
+      nobject++;
+
+      object[nobject]= new OSphere(25, 30,55,0);
+      object[nobject].set_colors
+         (90,90,90, 100,100,130, 230,230,230, 10,0,0.9); //grey reflective
+      nobject++;
+
+      object[nobject]= new OSphere(13, 45,20,-60);
+      object[nobject].set_colors
+         (70,5,10, 100,10,20, 70,20,40, 6,0,0.2); //red
+      nobject++;
+
+      for(i=nobject; i<OBJECTS; i++){ object[i]=null; }
+   }
+}

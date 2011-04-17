@@ -1,0 +1,47 @@
+<html><head><title>3d ray tracing animation applet: some math</title>
+
+</head>
+<!-- ====================================== -->
+
+<body text="#000000" background="../back.jpg" bgcolor="#ffffff" link="#0000ff" vlink="#5500aa" alink="#ff0000"> 
+<font size=3 face="Arial">
+
+<font size=5><p>Some Math</font>
+
+<font size=4><p>Cross Product</font><font size=3 face="Arial">
+<br>The cross product of two vectors is another vector at 90&#186; (or perpendicular) to both.
+
+<p>In the raytracer code used in this simulator, the cross product is used to find a
+triangle's normal, and in determining the dimensions of the image created.
+
+<p>The simulator uses a cross product in the 3d wireframe.  The cross product of a
+'ray' cast into the scene and the view up vector gives a convenient viewpoint to
+observe the ray.
+
+<p>Code to determine, and normalize, the cross product of two vectors:
+<pre>
+   private final T3d crossp(T3d a,T3d b){
+      T3d o= new T3d();
+      double d;
+      o.x= a.y*b.z - a.z*b.y;
+      o.y= a.z*b.x - a.x*b.z;
+      o.z= a.x*b.y - a.y*b.x;
+      d= Math.sqrt(o.x*o.x + o.y*o.y + o.z*o.z);
+      o.x/= d;
+      o.y/= d;
+      o.z/= d;
+      return o;
+   }
+</pre>
+
+<!--
+<font size=4><p>Cross Product</font><font size=3 face="Arial">
+
+
+
+<!-- ====================================== -->
+
+</font></font></body></html>
+
+
+

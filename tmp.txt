@@ -1,0 +1,62 @@
+Contents
+1. Abstract
+2. Glossary
+3. References
+
+ 
+Abstract
+
+A Java applet allows the user to move forward and backward through the code for a 
+ray tracer.  As the code is being viewed, the output can be seen in a separate 
+window.  In another window, a wireframe model of objects in the scene being 
+rendered is shown, and from a convenient viewpoint, demonstrates ray interaction 
+with objects and light sources.
+
+The scene can be chosen using a setup screen.  Object position, sizes, and 
+colors can be set.  Point light position and color can also be set.
+
+The applet can be viewed in any browser supporting Java 1.1, or run with JDK1.1.6.
+
+Features:
+· Code window, highlights line currently executing in the simulation.
+· Output window, displays portion of the scene rendered.
+· Vector guided view window, animates wireframe objects and light rays.
+· Setup window, configures scene to be rendered.
+· Mouse click on output window selects pixel to ray trace.
+· Output window zooming.
+· Design allows for other 3d algorithms to be easily incorporated.
+· Thread to provide fast response time to user commands.
+· Forward, Reverse, and Stop, VCR-like controls.
+· Speed control for code, and wireframe animation.
+
+· Hardware support (Magician OpenGL) in setup and vector guided view windows.
+· Variable values displayed
+
+ Glossary
+
+Rendering- process of creating images from models. [Foley]
+Ray Tracing- an image synthesis technique using geometrical optics and rays to evaluate recursive shading and visibility. [Glassner]
+ 
+ References
+
+[Eckel] 	Eckel, Bruce, Thinking in Java, Prentice Hall PTR: Upper Saddle, River, 
+NJ, 1998
+[Foley] 	Foley, Van Dam, Feiner, Hughes, Phillips, Introduction to Computer 
+Graphics
+[Goldman] 	Goldman, David, 3D Algorithm Animation, Master's Thesis: 1995
+[Glassner] 	Glassner, Andrew, An Introduction to Ray Tracing, Academic Press, 
+		New York: 1989
+[Head]		Head, Eileen, ASSIST: A Simple Simulator for State Transitions,
+		Master's Thesis: 1998, www.cs.binghamton.edu/~tools/
+[Heiny]	Heiny, Loren, Advanced Graphics Programming Using C/C++, 
+Coriolis Group Books: New York: 1993
+[Sillion]	Sillion, Francois, Puech, Claude, Radiosity & Global Illumination, 
+		Morgan Kaufmann Publishers, San Francisco: 1994
+
+[Sun1] 		java.sun.com/docs/books/tutorial/index.html
+[Sun2]		java.sun.com/products/jdk/1.1/docs/api/packages.html
+[Radiance]	lesowww.epfl.ch/radiance/radiance.html
+[Eckel2] 	www.bruceeckel.com/javabook.html 
+[Hermetica] 	www.hermetica.com/products/magician
+
+
