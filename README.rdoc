@@ -1,16 +1,12 @@
 = 3daa
 3D Algorithm Animator (3DAA) is a Java applet for visualizing algorithms. The current version simulates a raytracer. Included features are: The user can render an image of a scene. The user can create, modify, or select a scene. The path of a ray can be recorded. Additional 3D algorithms can be integrated. 
 
-== 
-If your browser has a java plugin installed,
-you can run the applet:
-http://github.com/bmaltzan/3daa/sim11/index.html
+Here's a screen shot:
+https://github.com/bmaltzan/3daa/blob/master/shot1.gif
 
-This project was completed in 1999.
-Java's windowing library implemention has changed, 
-which has caused some of the program to be draw outside the viewable area.
-Still, it work well enough to get the idea.
-
-Here's the documentation:
-http://github.com/bmaltzan/3daa/index.html
+Quick start:
+- Download these two files:
+  https://github.com/bmaltzan/3daa/tree/master/sim11
+- Install the java plugin for your browser
+- Drag the index.html file into your browser
 
